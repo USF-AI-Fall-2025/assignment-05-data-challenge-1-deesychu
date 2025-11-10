@@ -1,17 +1,17 @@
 # x62-data-challenge-student-pathways
 
 # Part 1 Answers
-# Data Quality
+## Data Quality
 The dataset has 11 columns total. Most columns are text-based (object type) including district names, demographic categories, student populations, and award types. The numeric columns (float64) are the district code and all four wage years. Only one column has missing data: DISTRICT_CODE is missing in about 13% of rows (2,745 out of 20,701 records). This makes sense because Legislative Districts don't have district codes - only School Districts do. All the wage data is complete with no missing values, which is good for building our prediction model.
 
-# Range
+## Range
 Categorical columns: The dataset includes several categorical variables. DISTRICT_TYPE has three categories: School District (17,960 records), Legislative District (2,702 records), and All (43 records). DEMO_CATEGORY breaks down into Race (12,116), Foster Status (2,754), Homeless Status (2,308), Gender (2,291), and All (1,236). STUDENT_POPULATION has 15 different groups including racial/ethnic categories (Hispanic or Latino, White, Asian, Black or African American, etc.), foster youth status, homelessness experience, and gender. AWARD_CATEGORY has four types of credentials: Bachelor's Degree - Transferred (5,594), Bachelor's Degree - Did Not Transfer (5,220), Community College Certificate (5,196), and Associate Degree (4,695). All data comes from the ACADEMIC_YEAR 2018-2019. There are 692 unique district names in the dataset.
 
 Numeric columns: The numeric columns show interesting patterns. DISTRICT_CODE ranges from about 110,000 to 5.87 million, with a fairly even distribution across California districts. The wage columns tell a more complex story. WAGE_YEAR1 ranges from $0 to $97,993, WAGE_YEAR2 from $0 to $132,847, WAGE_YEAR3 from $0 to $146,728, and WAGE_YEAR4 (our target variable) from $0 to $153,910. However, the distributions are heavily right-skewed—definitely not normal. The median for all wage years is $0, and even the 75th percentile is $0, meaning over three-quarters of the data shows zero earnings. This makes sense because the dataset includes many demographic breakdowns where specific groups might have had no graduates or no wage data reported. The mean wages increase each year (Year 1: $4,476 → Year 4: $8,531), showing wage growth over time for those with reported earnings.
 
 ![Numeric Distributions](numeric_distributions.png)
 
-# Semantics
+## Semantics
 Column meanings: The dataset tracks post-graduation earnings for California students across different demographics and credential types. DISTRICT_TYPE, DISTRICT_NAME, and DISTRICT_CODE identify where students attended school (either specific school districts or broader legislative districts). ACADEMIC_YEAR shows when students graduated (all 2018-2019 in this dataset). DEMO_CATEGORY and STUDENT_POPULATION work together to break down the data by demographics—Race tracks ethnic/racial groups, Foster Status tracks foster youth, Homeless Status tracks homelessness experience, Gender tracks male/female, and "All" represents aggregate data. AWARD_CATEGORY indicates what type of credential students earned (bachelor's degree, associate degree, or certificate), and the "Transferred" vs "Did Not Transfer" distinction for bachelor's degrees shows whether students started at a community college or went straight to a four-year school. WAGE_YEAR1 through WAGE_YEAR4 track annual earnings for the first four years after graduation, with WAGE_YEAR4 being our prediction target.
 
 Key Relationships: The wage columns are extremely highly correlated with each other (0.98-0.99 correlations), meaning students who earn more in their first year tend to continue earning more in subsequent years—wage trajectories are pretty consistent. The correlation heatmap shows this relationship is strongest between consecutive years (Year 3 and Year 4 have a 0.99 correlation). When looking at wages by award type, there's a clear hierarchy: Bachelor's degrees without transfer earn the highest average Year 4 wages ($18,500), followed by Associate degrees ($9,000), Bachelor's degrees with transfer ($4,500), and Community College certificates the lowest ($3,000). This is surprising since you'd expect transfer students (who also got bachelor's degrees) to earn similar amounts, but the data shows students who started at four-year universities significantly out-earn those who transferred from community colleges.
@@ -19,3 +19,14 @@ Key Relationships: The wage columns are extremely highly correlated with each ot
 ![Wage by Award](wage_by_award.png)
 
 ![Wage Correlation](wage_correlation.png)
+
+# Part 3 Answers
+## Question 1
+Based on the model performance, previous wage history (WAGE_YEAR1, WAGE_YEAR2, and WAGE_YEAR3) are clearly the strongest predictors of WAGE_YEAR4. This makes intuitive sense because wages tend to grow gradually over time, so knowing what someone earned in years 1-3 gives us a strong foundation for predicting year 4. The AWARD_CATEGORY (degree type) is also important since Bachelor's degrees typically lead to higher earnings than Associate degrees or certificates. Additionally, DEMO_CATEGORY and STUDENT_POPULATION can provide insights into earnings patterns across different demographic groups, though these features should be used carefully to avoid perpetuating existing inequalities.
+
+## Question 2
+The model reveals a significant earnings progression over the four-year period for most students, suggesting that completing higher education does lead to wage growth. However, the scatter plot shows considerable variation in outcomes even among people with similar backgrounds, indicating that individual circumstances, career choices, and opportunities vary widely. The Decision Tree model (RMSE: $2248.70) performed slightly better than Linear Regression (RMSE: $2449.08), suggesting that there are non-linear patterns in how different factors combine to influence earnings. For instance, certain combinations of degree type and demographics may lead to substantially different outcomes than a simple linear relationship would predict.
+![Actual vs. Predicted](actual_vs_predicted_comparison.png)
+
+## Question 3
+To improve predictions, I would want data about field of study or major (engineering vs. humanities leads to very different earning potential), geographic location of employment (cost of living and job markets vary significantly across California), and industry or sector (tech, healthcare, education, etc. have different salary ranges). Additional useful features would include work experience prior to graduation, whether the student worked full-time or part-time, employer size and type, and continued education or professional development. Finally, knowing about gaps in employment or career changes would help explain cases where earnings don't follow typical growth patterns.
